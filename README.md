@@ -1,6 +1,7 @@
 # Web-based Synthesizer
 
 This project is a feature-rich, web-based synthesizer built using HTML, CSS, and JavaScript. It utilizes the Web Audio API to create a powerful and flexible sound synthesis engine right in your browser.
+Find it at: [wubwub](https://fi4cr.github.io/wubwub/)
 
 ## Features
 
