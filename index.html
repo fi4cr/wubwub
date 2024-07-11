@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wubwub</title>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .synth-container {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 5px;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #ff9800;
+            color: #1e1e1e;
+        }
+        .module {
+            background-color: #3a3a3a;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .preset-selector {
+            display: flex;
+            align-items: center;
+        }
+
+        .preset-selector label {
+            margin-right: 10px;
+        }
+
+        #presets {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #presets:hover {
+            background-color: #4a4a4a;
+        }
+        .module-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #ff9800;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+        .slider {
+            -webkit-appearance: none;
+            width: 4px;
+            height: 100px;
+            background: #4a4a4a;
+            outline: none;
+            transform: rotate(180deg);
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 10px;
+            background: #e0e0e0;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 10px;
+            background: #e0e0e0;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .filter-visualization {
+            margin-bottom: 20px;
+        }
+
+        .knob {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a4a4a, #3a3a3a);
+            position: relative;
+            cursor: pointer;
+        }
+        .knob::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 15px;
+            background-color: #ff9800;
+            border-radius: 2px;
+        }
+        .label {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .oscillator-group {
+            margin-bottom: 20px;
+        }
+
+        .oscillator-content {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: flex-start;
+        }
+
+        .oscillator-controls {
+            flex: 0 0 auto;
+            width: 250px; /* Adjust this value based on your desired control width */
+            padding-right: 20px;
+        }
+
+        .oscillator-visualization {
+            flex: 1;
+            min-width: 0; /* This allows the flex item to shrink below its content size */
+        }
+
+        canvas {
+            width: 100%;
+            height: 100px; /* Adjust this value based on your desired visualization height */
+            border: 1px solid #4a4a4a;
+            display: block; /* Removes any extra space below the canvas */
+        }
+
+        .oscillator-group h3 {
+            margin-top: 0;
+            color: #ff9800;
+        }
+        #keyboard {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        select {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position-x: 100%;
+            background-position-y: 50%;
+            padding-right: 25px;
+        }
+
+        select:hover {
+            background-color: #4a4a4a;
+        }
+
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #ff9800;
+        }
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .round-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            margin: 0 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .play-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .play-button:hover {
+            background-color: #45a049;
+        }
+
+        .record-button {
+            background-color: #f44336;
+            position: relative;
+        }
+
+        .record-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .record-dot {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        .record-button.recording .record-dot {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .key {
+            width: 30px;
+            height: 120px;
+            background-color: #e0e0e0;
+            border: 1px solid #1e1e1e;
+            margin-right: 2px;
+        }
+        .key.black {
+            background-color: #1e1e1e;
+            height: 80px;
+            width: 20px;
+            margin-left: -11px;
+            margin-right: -11px;
+            z-index: 1;
+        }
+</style>
+</head>
+<body>
+    <div class="synth-container">
+        <div class="preset-selector">
+            <div class="button-container">
+                <button id="playButton" class="round-button play-button">Play</button>
+                <button id="recordButton" class="round-button record-button">
+                    <span class="record-dot"></span>
+                </button>
+            </div>
+            <label for="presets">Presets:</label>
+            <select id="presets">
+                <option value="wobbleBass">Wobble Bass</option>
+                <option value="fatSub">Fat Sub</option>
+                <option value="metallic">Metallic</option>
+                <option value="liquidBass">Liquid Bass</option>
+                <option value="screamingLead">Screaming Lead</option>
+                <option value="atmosphericPad">Atmospheric Pad</option>
+                <option value="harshNoise">Harsh Noise</option>
+                <option value="deepDrone">Deep Drone</option>
+                <option value="crystalBells">Crystal Bells</option>
+            </select>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="main">MAIN</button>
+            <button class="tab" data-tab="3xosc">3xOSC</button>
+            <button class="tab" data-tab="fm">FM</button>
+            <button class="tab" data-tab="filter">FILTER</button>
+            <button class="tab" data-tab="fx">FX</button>
+        </div>
+    
+        <div class="container">
+            <div id="main" class="tab-content active">
+                <div class="module">
+                    <h2>LFO</h2>
+                    <canvas id="lfoVisualization" width="300" height="100"></canvas>
+                    <br>
+                    <label for="lfoRate">LFO Rate: <span id="lfoRateValue">2</span> Hz</label>
+                    <input type="range" id="lfoRate" min="0.1" max="10" value="2" step="0.1">
+                    <br>
+                    <label for="lfoDepth">LFO Depth: <span id="lfoDepthValue">500</span></label>
+                    <input type="range" id="lfoDepth" min="0" max="1000" value="500">
+                    <h3>Meta LFO (LFO Rate Modulation)</h3>
+                    <label for="metaLfoWaveform">Waveform:</label>
+                    <select id="metaLfoWaveform">
+                        <option value="sine">Sine</option>
+                        <option value="square">Square</option>
+                        <option value="sawtooth">Sawtooth</option>
+                        <option value="triangle">Triangle</option>
+                    </select>
+                    <br>
+                    <label for="metaLfoRate">Rate: <span id="metaLfoRateValue">0.1</span> Hz</label>
+                    <input type="range" id="metaLfoRate" min="0.01" max="2" value="0.1" step="0.01">
+                    <br>
+                    <label for="metaLfoDepth">Depth: <span id="metaLfoDepthValue">1</span> Hz</label>
+                    <input type="range" id="metaLfoDepth" min="0" max="5" value="1" step="0.1">
+                </div>
+            </div>
+            
+            <div id="3xosc" class="tab-content">
+                <div class="module">
+                    <h2>3x Oscillators</h2>
+                    <div class="oscillator-group">
+                        <div class="oscillator-controls">
+                            <h3>Oscillator 1</h3>
+                            <div class="oscillator-visualization">
+                                <canvas id="oscillator1Visualization"></canvas>
+                            </div>
+                            <label for="waveform">Waveform:</label>
+                            <select id="waveform">
+                                <option value="sine">Sine</option>
+                                <option value="square">Square</option>
+                                <option value="sawtooth" selected>Sawtooth</option>
+                                <option value="triangle">Triangle</option>
+                            </select>
+                            <br><br>
+                            <label for="frequency">Frequency: <span id="freqValue">100</span> Hz</label>
+                            <br>
+                            <input type="range" id="frequency" min="20" max="500" value="100">
+                            <br><br>
+                            <label for="op1Gain">Gain: <span id="op1GainValue">0.5</span></label>
+                            <br>
+                            <input type="range" id="op1Gain" min="0" max="1" value="0.5" step="0.01">
+                            <br><br>
+                            <label for="detune1">Detune: <span id="detuneValue1">0</span> cents</label>
+                            <br>
+                            <input type="range" id="detune1" min="-100" max="100" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="oscillator-group">
+                        <div class="oscillator-controls">
+                            <h3>Oscillator 2</h3>
+                            <div class="oscillator-visualization">
+                                <canvas id="oscillator2Visualization"></canvas>
+                            </div>
+                            <label for="waveform2">Waveform:</label>
+                            <select id="waveform2">
+                                <option value="sine">Sine</option>
+                                <option value="square">Square</option>
+                                <option value="sawtooth">Sawtooth</option>
+                                <option value="triangle">Triangle</option>
+                            </select>
+                            <br><br>
+                            <label for="frequency2">Frequency: <span id="freqValue2">100</span> Hz</label>
+                            <br>
+                            <input type="range" id="frequency2" min="20" max="500" value="100">
+                            <br><br>
+                            <label for="op2Gain">Gain: <span id="op2GainValue">0.5</span></label>
+                            <br>
+                            <input type="range" id="op2Gain" min="0" max="1" value="0.5" step="0.01">
+                            <br><br>
+                            <label for="detune2">Detune: <span id="detuneValue2">0</span> cents</label>
+                            <br>
+                            <input type="range" id="detune2" min="-100" max="100" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="oscillator-group">
+                        <div class="oscillator-controls">
+                            <h3>Oscillator 3</h3>
+                            <label for="waveform3">Waveform:</label>
+                            <div class="oscillator-visualization">
+                                <canvas id="oscillator3Visualization"></canvas>
+                            </div>
+                            <select id="waveform3">
+                                <option value="sine">Sine</option>
+                                <option value="square">Square</option>
+                                <option value="sawtooth">Sawtooth</option>
+                                <option value="triangle">Triangle</option>
+                            </select>
+                            <br><br>
+                            <label for="frequency3">Frequency: <span id="freqValue3">100</span> Hz</label>
+                            <br>
+                            <input type="range" id="frequency3" min="20" max="500" value="100">
+                            <br><br>
+                            <label for="op3Gain">Gain: <span id="op3GainValue">0.5</span></label>
+                            <br>
+                            <input type="range" id="op3Gain" min="0" max="1" value="0.5" step="0.01">
+                            <br><br>
+                            <label for="detune3">Detune: <span id="detuneValue3">0</span> cents</label>
+                            <br>
+                            <input type="range" id="detune3" min="-100" max="100" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="fm" class="tab-content">
+                <div class="module">
+                    <h2>FM Synthesis</h2>
+                    <div class="oscillator-group">
+                        <div class="oscillator-controls">
+                            <h3>FM Oscillator 1</h3>
+                            <div class="oscillator-visualization">
+                                <canvas id="fmOscillator1Visualization"></canvas>
+                            </div>
+                            <label for="fmWaveform1">Waveform:</label>
+                            <select id="fmWaveform1">
+                                <option value="sine">Sine</option>
+                                <option value="square">Square</option>
+                                <option value="sawtooth">Sawtooth</option>
+                                <option value="triangle">Triangle</option>
+                            </select>
+                            <br><br>
+                            <label for="fmFrequency1">Frequency: <span id="fmFreqValue1">100</span> Hz</label>
+                            <br>
+                            <input type="range" id="fmFrequency1" min="0" max="1000" value="100">
+                            <br><br>
+                            <label for="fmDepth1">Depth: <span id="fmDepthValue1">100</span></label>
+                            <br>
+                            <input type="range" id="fmDepth1" min="0" max="1000" value="100">
+                        </div>
+                    </div>
+                    <div class="oscillator-group">
+                        <div class="oscillator-controls">
+                            <h3>FM Oscillator 2</h3>
+                            <div class="oscillator-visualization">
+                                <canvas id="fmOscillator2Visualization"></canvas>
+                            </div>
+                            <label for="fmWaveform2">Waveform:</label>
+                            <select id="fmWaveform2">
+                                <option value="sine">Sine</option>
+                                <option value="square">Square</option>
+                                <option value="sawtooth">Sawtooth</option>
+                                <option value="triangle">Triangle</option>
+                            </select>
+                            <br><br>
+                            <label for="fmFrequency2">Frequency: <span id="fmFreqValue2">100</span> Hz</label>
+                            <br>
+                            <input type="range" id="fmFrequency2" min="0" max="1000" value="100">
+                            <br><br>
+                            <label for="fmDepth2">Depth: <span id="fmDepthValue2">100</span></label>
+                            <br>
+                            <input type="range" id="fmDepth2" min="0" max="1000" value="100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+            <div id="filter" class="tab-content">
+                <div class="module">
+                    <h2>Low-Pass Filter</h2>
+                    <label for="cutoff">Cutoff: <span id="cutoffValue">1000</span> Hz</label>
+                    <input type="range" id="cutoff" min="20" max="20000" value="1000">
+                    <br>
+                    <label for="resonance">Resonance: <span id="resonanceValue">5</span></label>
+                    <input type="range" id="resonance" min="0" max="20" value="5" step="0.1">
+                </div>
+            </div>
+            
+            <div id="fx" class="tab-content">
+                <div class="module">
+                    <h2>Distortion/Saturation</h2>
+                    <label for="distortionType">Distortion Type:</label>
+                    <select id="distortionType">
+                        <option value="soft">Soft Clipping</option>
+                        <option value="hard">Hard Clipping</option>
+                        <option value="foldback">Foldback</option>
+                        <option value="sine">Sine Shaper</option>
+                    </select>
+                    <br>
+                    <label for="distortionAmount">Amount: <span id="distortionValue">0</span></label>
+                    <input type="range" id="distortionAmount" min="0" max="100" value="0">
+                    <br>
+                    <label for="preFilterFreq">Pre-Filter Frequency: <span id="preFilterFreqValue">2000</span> Hz</label>
+                    <input type="range" id="preFilterFreq" min="20" max="20000" value="2000">
+                    <br>
+                    <label for="postFilterFreq">Post-Filter Frequency: <span id="postFilterFreqValue">2000</span> Hz</label>
+                    <input type="range" id="postFilterFreq" min="20" max="20000" value="2000">
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        // let audioContext, oscillator1, oscillator2, filter, lfo, lfoGain, distortion, mixerGain1, mixerGain2, playing = false;
+        let lfoVisualizationInterval, audioContext, audioNodes, playing = false;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioNodes = setupAudio();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        const presets = {
+            wobbleBass: {
+                op1: { waveform: 'sawtooth', frequency: 50, detune: 0, gain: 0.7 },
+                op2: { waveform: 'square', frequency: 50, detune: 10, gain: 0.3 },
+                op3: { waveform: 'sawtooth', frequency: 50, detune: -10, gain: 0.3 },
+                fm1: { waveform: 'sine', frequency: 110, depth: 210 },
+                fm2: { waveform: 'sine', frequency: 176, depth: 600 },
+                filter: { cutoff: 500, resonance: 10 },
+                lfo: { rate: 5, depth: 800 },
+                metaLfo: { waveform: 'sine', rate: 0.1, depth: 1 },
+                distortion: { amount: 20 }
+            },
+            fatSub: {
+                op1: { waveform: 'sine', frequency: 40, detune: 0, gain: 0.8 },
+                op2: { waveform: 'sine', frequency: 40, detune: 5, gain: 0.6 },
+                op3: { waveform: 'sine', frequency: 40, detune: -5, gain: 0.6 },
+                fm1: { waveform: 'sine', frequency: 2, depth: 20 },
+                fm2: { waveform: 'sine', frequency: 3, depth: 15 },
+                filter: { cutoff: 200, resonance: 2 },
+                lfo: { rate: 0.5, depth: 100 },
+                metaLfo: { waveform: 'triangle', rate: 0.05, depth: 0.2 },
+                distortion: { amount: 10 }
+            },
+            metallic: {
+                op1: { waveform: 'sawtooth', frequency: 100, detune: 0, gain: 0.6 },
+                op2: { waveform: 'square', frequency: 100, detune: 7, gain: 0.4 },
+                op3: { waveform: 'triangle', frequency: 200, detune: -7, gain: 0.3 },
+                fm1: { waveform: 'square', frequency: 179, depth: 300 },
+                fm2: { waveform: 'sawtooth', frequency: 239, depth: 200 },
+                filter: { cutoff: 2000, resonance: 15 },
+                lfo: { rate: 6, depth: 500 },
+                metaLfo: { waveform: 'square', rate: 0.2, depth: 2 },
+                distortion: { amount: 30 }
+            },
+            liquidBass: {
+                op1: { waveform: 'sine', frequency: 60, detune: 0, gain: 0.7 },
+                op2: { waveform: 'triangle', frequency: 120, detune: 3, gain: 0.5 },
+                op3: { waveform: 'sine', frequency: 180, detune: -3, gain: 0.3 },
+                fm1: { waveform: 'sine', frequency: 0.5, depth: 50 },
+                fm2: { waveform: 'sine', frequency: 0.7, depth: 30 },
+                filter: { cutoff: 800, resonance: 8 },
+                lfo: { rate: 0.2, depth: 300 },
+                metaLfo: { waveform: 'sine', rate: 0.03, depth: 0.1 },
+                distortion: { amount: 5 }
+            },
+            screamingLead: {
+                op1: { waveform: 'sawtooth', frequency: 220, detune: 0, gain: 0.6 },
+                op2: { waveform: 'square', frequency: 220, detune: 12, gain: 0.4 },
+                op3: { waveform: 'sawtooth', frequency: 440, detune: -12, gain: 0.3 },
+                fm1: { waveform: 'sine', frequency: 110, depth: 200 },
+                fm2: { waveform: 'triangle', frequency: 55, depth: 150 },
+                filter: { cutoff: 3000, resonance: 12 },
+                lfo: { rate: 7, depth: 200 },
+                metaLfo: { waveform: 'sawtooth', rate: 0.15, depth: 3 },
+                distortion: { amount: 40 }
+            },
+            atmosphericPad: {
+                op1: { waveform: 'sine', frequency: 100, detune: 0, gain: 0.6 },
+                op2: { waveform: 'sine', frequency: 150, detune: 7, gain: 0.5 },
+                op3: { waveform: 'sine', frequency: 200, detune: -7, gain: 0.4 },
+                fm1: { waveform: 'sine', frequency: 0.5, depth: 20 },
+                fm2: { waveform: 'sine', frequency: 0.7, depth: 15 },
+                filter: { cutoff: 1000, resonance: 2 },
+                lfo: { rate: 0.1, depth: 300 },
+                metaLfo: { waveform: 'triangle', rate: 0.05, depth: 0.5 },
+                distortion: { amount: 5 }
+            },
+
+            harshNoise: {
+                op1: { waveform: 'sawtooth', frequency: 100, detune: 0, gain: 0.5 },
+                op2: { waveform: 'square', frequency: 101, detune: 20, gain: 0.5 },
+                op3: { waveform: 'sawtooth', frequency: 99, detune: -20, gain: 0.5 },
+                fm1: { waveform: 'square', frequency: 50, depth: 500 },
+                fm2: { waveform: 'sawtooth', frequency: 51, depth: 500 },
+                filter: { cutoff: 4000, resonance: 15 },
+                lfo: { rate: 8, depth: 1000 },
+                metaLfo: { waveform: 'square', rate: 0.5, depth: 2 },
+                distortion: { amount: 50 }
+            },
+
+            deepDrone: {
+                op1: { waveform: 'sine', frequency: 55, detune: 0, gain: 0.7 },
+                op2: { waveform: 'triangle', frequency: 55.5, detune: 10, gain: 0.6 },
+                op3: { waveform: 'sine', frequency: 54.5, detune: -10, gain: 0.6 },
+                fm1: { waveform: 'sine', frequency: 0.1, depth: 10 },
+                fm2: { waveform: 'sine', frequency: 0.11, depth: 10 },
+                filter: { cutoff: 500, resonance: 1 },
+                lfo: { rate: 0.05, depth: 100 },
+                metaLfo: { waveform: 'sine', rate: 0.01, depth: 0.1 },
+                distortion: { amount: 15 }
+            },
+
+            crystalBells: {
+                op1: { waveform: 'sine', frequency: 440, detune: 0, gain: 0.7 },
+                op2: { waveform: 'sine', frequency: 880, detune: 5, gain: 0.3 },
+                op3: { waveform: 'sine', frequency: 1320, detune: -5, gain: 0.2 },
+                fm1: { waveform: 'sine', frequency: 220, depth: 100 },
+                fm2: { waveform: 'sine', frequency: 440, depth: 50 },
+                filter: { cutoff: 5000, resonance: 1 },
+                lfo: { rate: 4, depth: 50 },
+                metaLfo: { waveform: 'sine', rate: 0.5, depth: 0.5 },
+                distortion: { amount: 2 }
+            }
+        };
+
+        function setupAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Create oscillators
+            const oscillator1 = audioContext.createOscillator();
+            const oscillator2 = audioContext.createOscillator();
+            const oscillator3 = audioContext.createOscillator();
+            
+            // Create mixer gains for each oscillator
+            const mixerGain1 = audioContext.createGain();
+            const mixerGain2 = audioContext.createGain();
+            const mixerGain3 = audioContext.createGain();
+            
+            // Create other audio nodes
+            const filter = audioContext.createBiquadFilter();
+            const lfo = audioContext.createOscillator();
+            const lfoGain = audioContext.createGain();
+            const distortion = audioContext.createWaveShaper();
+            const preFilter = audioContext.createBiquadFilter();
+            const postFilter = audioContext.createBiquadFilter();
+
+            // Create meta LFO
+            const metaLfo = audioContext.createOscillator();
+            const metaLfoGain = audioContext.createGain();
+
+            // Connect oscillators to their respective mixer gains
+            oscillator1.connect(mixerGain1);
+            oscillator2.connect(mixerGain2);
+            oscillator3.connect(mixerGain3);
+            
+            // Connect mixer gains to distortion
+            mixerGain1.connect(preFilter);
+            mixerGain2.connect(preFilter);
+            mixerGain3.connect(preFilter);
+            
+            // Create FM oscillators
+            const fmOscillator1 = audioContext.createOscillator(); // Carrier
+            const fmOscillator2 = audioContext.createOscillator(); // Modulator
+            const fmGain1 = audioContext.createGain(); // Output gain for carrier
+            const fmGain2 = audioContext.createGain(); // Modulation depth
+
+            // FM synthesis setup
+            fmOscillator2.connect(fmGain2); // Modulator to modulation depth
+            fmGain2.connect(fmOscillator1.frequency); // Modulation depth to carrier frequency
+            fmOscillator1.connect(fmGain1); // Carrier to output gain
+
+            // Connect FM output to the main audio chain
+            fmGain1.connect(preFilter);
+            preFilter.connect(distortion);
+            distortion.connect(postFilter);
+            postFilter.connect(filter);
+
+            // Connect the rest of the audio chain
+            filter.connect(audioContext.destination);
+
+            // LFO setup
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+
+            // Connect meta LFO to LFO frequency
+            metaLfo.connect(metaLfoGain);
+            metaLfoGain.connect(lfo.frequency);
+
+            // Start oscillators and LFO
+            oscillator1.start();
+            oscillator2.start();
+            oscillator3.start();
+            fmOscillator1.start();
+            fmOscillator2.start();
+            lfo.start();
+            metaLfo.start();
+
+            return { oscillator1, oscillator2, oscillator3, mixerGain1, mixerGain2, mixerGain3, filter, lfo, lfoGain, distortion, fmOscillator1, fmOscillator2, fmGain1, fmGain2, metaLfo, metaLfoGain, preFilter, postFilter};
+        }
+
+        function loadPreset(preset) {
+            initAudio();
+            const settings = presets[preset];
+            
+            // Update Oscillator 1
+            document.getElementById('waveform').value = settings.op1.waveform;
+            document.getElementById('frequency').value = settings.op1.frequency;
+            document.getElementById('detune1').value = settings.op1.detune;
+            document.getElementById('op1Gain').value = settings.op1.gain;
+            
+            // Update Oscillator 2
+            document.getElementById('waveform2').value = settings.op2.waveform;
+            document.getElementById('frequency2').value = settings.op2.frequency;
+            document.getElementById('detune2').value = settings.op2.detune;
+            document.getElementById('op2Gain').value = settings.op2.gain;
+            
+            // Update Oscillator 3
+            document.getElementById('waveform3').value = settings.op3.waveform;
+            document.getElementById('frequency3').value = settings.op3.frequency;
+            document.getElementById('detune3').value = settings.op3.detune;
+            document.getElementById('op3Gain').value = settings.op3.gain;
+            
+            // Update FM Oscillator 1
+            document.getElementById('fmWaveform1').value = settings.fm1.waveform;
+            document.getElementById('fmFrequency1').value = settings.fm1.frequency;
+            document.getElementById('fmDepth1').value = settings.fm1.depth;
+
+            // Update FM Oscillator 2
+            document.getElementById('fmWaveform2').value = settings.fm2.waveform;
+            document.getElementById('fmFrequency2').value = settings.fm2.frequency;
+            document.getElementById('fmDepth2').value = settings.fm2.depth;
+            
+            // Update Filter
+            document.getElementById('cutoff').value = settings.filter.cutoff;
+            document.getElementById('resonance').value = settings.filter.resonance;
+            
+            // Update LFO
+            document.getElementById('lfoRate').value = settings.lfo.rate;
+            document.getElementById('lfoDepth').value = settings.lfo.depth;
+
+            // Update Meta LFO
+            document.getElementById('metaLfoWaveform').value = settings.metaLfo.waveform;
+            document.getElementById('metaLfoRate').value = settings.metaLfo.rate;
+            document.getElementById('metaLfoDepth').value = settings.metaLfo.depth;    
+            
+            // Update Distortion
+            document.getElementById('distortionAmount').value = settings.distortion.amount;
+            
+            // Trigger updates for all changed controls
+            updateOscillator1();
+            updateOscillator2();
+            updateOscillator3();
+            updateFM1();
+            updateFM2();
+            updateFilter();
+            updateLFO();
+            updateMetaLFO();
+            updateDistortion();
+            updateOscillatorVisualizations();
+            updateFMVisualizations();
+            updateFilter();
+
+            // Update display values
+            document.getElementById('freqValue').textContent = settings.op1.frequency;
+            document.getElementById('detuneValue1').textContent = settings.op1.detune;
+            document.getElementById('op1GainValue').textContent = settings.op1.gain;
+            
+            document.getElementById('freqValue2').textContent = settings.op2.frequency;
+            document.getElementById('detuneValue2').textContent = settings.op2.detune;
+            document.getElementById('op2GainValue').textContent = settings.op2.gain;
+            
+            document.getElementById('freqValue3').textContent = settings.op3.frequency;
+            document.getElementById('detuneValue3').textContent = settings.op3.detune;
+            document.getElementById('op3GainValue').textContent = settings.op3.gain;
+
+            document.getElementById('fmFreqValue1').textContent = settings.fm1.frequency;
+            document.getElementById('fmDepthValue1').textContent = settings.fm1.depth;
+            document.getElementById('fmFreqValue2').textContent = settings.fm2.frequency;
+            document.getElementById('fmDepthValue2').textContent = settings.fm2.depth;
+
+            document.getElementById('cutoffValue').textContent = settings.filter.cutoff;
+            document.getElementById('resonanceValue').textContent = settings.filter.resonance;
+            
+            document.getElementById('lfoRateValue').textContent = settings.lfo.rate;
+            document.getElementById('lfoDepthValue').textContent = settings.lfo.depth;
+            
+            document.getElementById('distortionValue').textContent = settings.distortion.amount;
+        }
+
+        function startLFOVisualization() {
+            const canvas = document.getElementById('lfoVisualization');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            let phase = 0;
+
+            function drawLFO() {
+                const lfoRate = parseFloat(document.getElementById('lfoRate').value);
+                const lfoDepth = parseFloat(document.getElementById('lfoDepth').value) / 1000; // Normalize to 0-1 range
+
+                ctx.clearRect(0, 0, width, height);
+                ctx.beginPath();
+                ctx.moveTo(0, height / 2);
+
+                for (let x = 0; x < width; x++) {
+                    const t = x / width;
+                    const y = Math.sin(2 * Math.PI * lfoRate * t + phase) * lfoDepth * (height / 2) + (height / 2);
+                    ctx.lineTo(x, y);
+                }
+
+                ctx.strokeStyle = '#00ffff';
+                ctx.stroke();
+
+                phase += 0.1 * lfoRate;
+                if (phase > 2 * Math.PI) {
+                    phase -= 2 * Math.PI;
+                }
+            }
+
+            lfoVisualizationInterval = setInterval(drawLFO, 30); // Update about 30 times per second
+        }
+
+        function stopLFOVisualization() {
+            clearInterval(lfoVisualizationInterval);
+        }
+
+        function drawOscillatorWave(canvasId, waveform, frequency, gain) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions to match its display size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+
+            const samples = 1000; // Number of points to plot
+
+            for (let i = 0; i <= samples; i++) {
+                const x = (i / samples) * width;
+                const t = i / samples;
+                let y;
+
+                switch (waveform) {
+                    case 'sine':
+                        y = Math.sin(2 * Math.PI * t);
+                        break;
+                    case 'square':
+                        y = t < 0.5 ? 1 : -1;
+                        break;
+                    case 'sawtooth':
+                        y = 2 * (t - Math.floor(t + 0.5));
+                        break;
+                    case 'triangle':
+                        y = 2 * Math.abs(2 * (t - Math.floor(t + 0.5))) - 1;
+                        break;
+                }
+
+                y = -y * gain * 0.9 * (height / 2) + (height / 2);
+                ctx.lineTo(x, y);
+            }
+
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw the zero line
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        function updateOscillatorVisualizations() {
+            const osc1Waveform = document.getElementById('waveform').value;
+            const osc1Gain = parseFloat(document.getElementById('op1Gain').value);
+
+            const osc2Waveform = document.getElementById('waveform2').value;
+            const osc2Gain = parseFloat(document.getElementById('op2Gain').value);
+
+            const osc3Waveform = document.getElementById('waveform3').value;
+            const osc3Gain = parseFloat(document.getElementById('op3Gain').value);
+
+            drawOscillatorWave('oscillator1Visualization', osc1Waveform, 0, osc1Gain);
+            drawOscillatorWave('oscillator2Visualization', osc2Waveform, 0, osc2Gain);
+            drawOscillatorWave('oscillator3Visualization', osc3Waveform, 0, osc3Gain);
+        }
+
+        function updateFMVisualizations() {
+            const fm1Waveform = document.getElementById('fmWaveform1').value;
+            const fm1Depth = parseFloat(document.getElementById('fmDepth1').value) / 1000;
+
+            const fm2Waveform = document.getElementById('fmWaveform2').value;
+            const fm2Depth = parseFloat(document.getElementById('fmDepth2').value) / 1000;
+
+            drawOscillatorWave('fmOscillator1Visualization', fm1Waveform, 0, fm1Depth);
+            drawOscillatorWave('fmOscillator2Visualization', fm2Waveform, 0, fm2Depth);
+        }
+        
+        function updateFilter() {
+            const cutoff = document.getElementById('cutoff').value;
+            const resonance = document.getElementById('resonance').value;
+            
+            audioNodes.filter.type = 'lowpass';
+            audioNodes.filter.frequency.setValueAtTime(parseFloat(cutoff), audioContext.currentTime);
+            audioNodes.filter.Q.setValueAtTime(parseFloat(resonance), audioContext.currentTime);
+            
+            document.getElementById('cutoffValue').textContent = cutoff;
+            document.getElementById('resonanceValue').textContent = resonance;
+        }
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                document.getElementById("recordButton").classList.add("finishing");
+                document.getElementById("recordButton").disabled = true;
+                
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    document.getElementById("recordButton").classList.remove("recording", "finishing");
+                    document.getElementById("recordButton").disabled = false;
+                }, 5000);
+            }
+        }
+
+        function startRecording() {
+            const dest = audioContext.createMediaStreamDestination();
+            const source = audioContext.createGain();
+            audioNodes.filter.connect(source);
+            source.connect(audioContext.destination);
+            source.connect(dest);
+
+            mediaRecorder = new MediaRecorder(dest.stream);
+
+            mediaRecorder.ondataavailable = (evt) => {
+                audioChunks.push(evt.data);
+            };
+
+            mediaRecorder.onstop = (evt) => {
+                const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const link = document.createElement('a');
+                link.href = audioUrl;
+                link.download = "synth_recording.wav";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            audioChunks = [];
+            mediaRecorder.start();
+            isRecording = true;
+            document.getElementById("recordButton").classList.add("recording");
+        }
+        
+        document.getElementById("recordButton").addEventListener("click", () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+        
+        document.getElementById("recordButton").addEventListener("click", () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        // Modify the play button event listener to ensure audio context is running
+        document.getElementById('playButton').addEventListener('click', () => {
+            initAudio();
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            } else {
+                audioContext.suspend();
+            }
+            if (playing) {
+                playing = false;
+                stopLFOVisualization();
+                document.getElementById('playButton').textContent = "Play";
+            } else {
+                playing = true;
+                startLFOVisualization();
+                document.getElementById('playButton').textContent = "Stop";
+            }
+        });
+
+        function updateOscillator1() {
+            const waveform = document.getElementById('waveform').value;
+            const frequency = document.getElementById('frequency').value;
+            const detune = document.getElementById('detune1').value; // Add this line
+            const gain = document.getElementById('op1Gain').value;
+            
+            audioNodes.oscillator1.type = waveform;
+            audioNodes.oscillator1.frequency.setValueAtTime(parseFloat(frequency), audioContext.currentTime);
+            audioNodes.oscillator1.detune.setValueAtTime(parseFloat(detune), audioContext.currentTime); // Add this line
+            audioNodes.mixerGain1.gain.setValueAtTime(parseFloat(gain), audioContext.currentTime);
+            
+            document.getElementById('freqValue').textContent = frequency;
+            document.getElementById('detuneValue1').textContent = detune; // Add this line
+            document.getElementById('op1GainValue').textContent = gain;
+        }
+
+        function updateOscillator2() {
+            const waveform = document.getElementById('waveform2').value;
+            const frequency = document.getElementById('frequency2').value;
+            const detune = document.getElementById('detune2').value;
+            const gain = document.getElementById('op2Gain').value;
+            
+            audioNodes.oscillator2.type = waveform;
+            audioNodes.oscillator2.frequency.setValueAtTime(parseFloat(frequency), audioContext.currentTime);
+            audioNodes.oscillator2.detune.setValueAtTime(parseFloat(detune), audioContext.currentTime);
+            audioNodes.mixerGain2.gain.setValueAtTime(parseFloat(gain), audioContext.currentTime);
+            
+            document.getElementById('freqValue2').textContent = frequency;
+            document.getElementById('detuneValue2').textContent = detune;
+            document.getElementById('op2GainValue').textContent = gain;
+        }
+        
+        function updateOscillator3() {
+            const waveform = document.getElementById('waveform3').value;
+            const frequency = document.getElementById('frequency3').value;
+            const detune = document.getElementById('detune3').value;
+            const gain = document.getElementById('op3Gain').value;
+            
+            audioNodes.oscillator3.type = waveform;
+            audioNodes.oscillator3.frequency.setValueAtTime(parseFloat(frequency), audioContext.currentTime);
+            audioNodes.oscillator3.detune.setValueAtTime(parseFloat(detune), audioContext.currentTime);
+            audioNodes.mixerGain3.gain.setValueAtTime(parseFloat(gain), audioContext.currentTime);
+            
+            document.getElementById('freqValue3').textContent = frequency;
+            document.getElementById('detuneValue3').textContent = detune;
+            document.getElementById('op3GainValue').textContent = gain;
+        }
+
+        function updateFM1() {
+            const waveform = document.getElementById('fmWaveform1').value;
+            const frequency = parseFloat(document.getElementById('fmFrequency1').value);
+            const depth = parseFloat(document.getElementById('fmDepth1').value);
+
+            audioNodes.fmOscillator1.type = waveform;
+            audioNodes.fmOscillator1.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            audioNodes.fmGain1.gain.setValueAtTime(depth / 1000, audioContext.currentTime); // Carrier output gain
+
+            document.getElementById('fmFreqValue1').textContent = frequency;
+            document.getElementById('fmDepthValue1').textContent = depth;
+
+            updateFMVisualizations();
+        }
+
+        function updateFM2() {
+            const waveform = document.getElementById('fmWaveform2').value;
+            const frequency = parseFloat(document.getElementById('fmFrequency2').value);
+            const depth = parseFloat(document.getElementById('fmDepth2').value);
+
+            audioNodes.fmOscillator2.type = waveform;
+            audioNodes.fmOscillator2.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            audioNodes.fmGain2.gain.setValueAtTime(depth, audioContext.currentTime); // Modulation depth
+
+            document.getElementById('fmFreqValue2').textContent = frequency;
+            document.getElementById('fmDepthValue2').textContent = depth;
+
+            updateFMVisualizations();
+        }
+
+        function updateFilter() {
+            const cutoff = document.getElementById('cutoff').value;
+            const resonance = document.getElementById('resonance').value;
+            
+            audioNodes.filter.type = 'lowpass';
+            audioNodes.filter.frequency.setValueAtTime(parseFloat(cutoff), audioContext.currentTime);
+            audioNodes.filter.Q.setValueAtTime(parseFloat(resonance), audioContext.currentTime);
+            
+            document.getElementById('cutoffValue').textContent = cutoff;
+            document.getElementById('resonanceValue').textContent = resonance;
+        }
+
+        function updateLFO() {
+            const lfoRate = parseFloat(document.getElementById('lfoRate').value);
+            const lfoDepth = parseFloat(document.getElementById('lfoDepth').value);
+            
+            // Set the base frequency of the LFO
+            audioNodes.lfo.frequency.setValueAtTime(lfoRate, audioContext.currentTime);
+            audioNodes.lfoGain.gain.setValueAtTime(lfoDepth, audioContext.currentTime);
+            
+            document.getElementById('lfoRateValue').textContent = lfoRate;
+            document.getElementById('lfoDepthValue').textContent = lfoDepth;
+        }
+
+        function updateMetaLFO() {
+            const waveform = document.getElementById('metaLfoWaveform').value;
+            const rate = parseFloat(document.getElementById('metaLfoRate').value);
+            const depth = parseFloat(document.getElementById('metaLfoDepth').value);
+
+            audioNodes.metaLfo.type = waveform;
+            audioNodes.metaLfo.frequency.setValueAtTime(rate, audioContext.currentTime);
+            audioNodes.metaLfoGain.gain.setValueAtTime(depth, audioContext.currentTime);
+
+            document.getElementById('metaLfoRateValue').textContent = rate;
+            document.getElementById('metaLfoDepthValue').textContent = depth;
+        }
+
+        function updateDistortion() {
+            const amount = parseFloat(document.getElementById('distortionAmount').value);
+            const type = document.getElementById('distortionType').value;
+            const preFilterFreq = parseFloat(document.getElementById('preFilterFreq').value);
+            const postFilterFreq = parseFloat(document.getElementById('postFilterFreq').value);
+            
+            const n_samples = 44100;
+            const curve = new Float32Array(n_samples);
+            
+            switch(type) {
+                case 'soft':
+                    for (let i = 0; i < n_samples; ++i) {
+                        const x = i * 2 / n_samples - 1;
+                        curve[i] = Math.tanh(amount * x) / Math.tanh(amount);
+                    }
+                    break;
+                case 'hard':
+                    for (let i = 0; i < n_samples; ++i) {
+                        const x = i * 2 / n_samples - 1;
+                        curve[i] = Math.sign(x) * (1 - Math.exp(-Math.abs(amount * x)));
+                    }
+                    break;
+                case 'foldback':
+                    for (let i = 0; i < n_samples; ++i) {
+                        let x = i * 2 / n_samples - 1;
+                        if (x > 1 / (amount + 1) || x < -1 / (amount + 1))
+                            x = Math.abs(Math.abs((x - 1 / (amount + 1)) % (4 / (amount + 1))) - 2 / (amount + 1)) - 1 / (amount + 1);
+                        curve[i] = x;
+                    }
+                    break;
+                case 'sine':
+                    for (let i = 0; i < n_samples; ++i) {
+                        const x = i * 2 / n_samples - 1;
+                        curve[i] = Math.sin(amount * Math.PI * x / 2);
+                    }
+                    break;
+            }
+            
+            audioNodes.distortion.curve = curve;
+            audioNodes.preFilter.frequency.setValueAtTime(preFilterFreq, audioContext.currentTime);
+            audioNodes.postFilter.frequency.setValueAtTime(postFilterFreq, audioContext.currentTime);
+            
+            document.getElementById('distortionValue').textContent = amount;
+            document.getElementById('preFilterFreqValue').textContent = preFilterFreq;
+            document.getElementById('postFilterFreqValue').textContent = postFilterFreq;
+        }
+
+        document.getElementById('waveform').addEventListener('change', updateOscillator1);
+        document.getElementById('frequency').addEventListener('input', updateOscillator1);
+        document.getElementById('op1Gain').addEventListener('input', updateOscillator1);
+
+        document.getElementById('waveform2').addEventListener('change', updateOscillator2);
+        document.getElementById('frequency2').addEventListener('input', updateOscillator2);
+        document.getElementById('detune2').addEventListener('input', updateOscillator2);
+        document.getElementById('op2Gain').addEventListener('input', updateOscillator2);
+
+        document.getElementById('waveform3').addEventListener('change', updateOscillator3);
+        document.getElementById('frequency3').addEventListener('input', updateOscillator3);
+        document.getElementById('detune3').addEventListener('input', updateOscillator3);
+        document.getElementById('op3Gain').addEventListener('input', updateOscillator3);
+
+        document.getElementById('fmWaveform1').addEventListener('change', updateFM1);
+        document.getElementById('fmFrequency1').addEventListener('input', updateFM1);
+        document.getElementById('fmDepth1').addEventListener('input', updateFM1);
+
+        document.getElementById('fmWaveform2').addEventListener('change', updateFM2);
+        document.getElementById('fmFrequency2').addEventListener('input', updateFM2);
+        document.getElementById('fmDepth2').addEventListener('input', updateFM2);
+
+        document.getElementById('fmWaveform1').addEventListener('change', updateFMVisualizations);
+        document.getElementById('fmFrequency1').addEventListener('input', updateFMVisualizations);
+        document.getElementById('fmDepth1').addEventListener('input', updateFMVisualizations);
+
+        document.getElementById('fmWaveform2').addEventListener('change', updateFMVisualizations);
+        document.getElementById('fmFrequency2').addEventListener('input', updateFMVisualizations);
+        document.getElementById('fmDepth2').addEventListener('input', updateFMVisualizations);
+
+        document.getElementById('cutoff').addEventListener('input', updateFilter);
+        document.getElementById('resonance').addEventListener('input', updateFilter);
+
+        document.getElementById('lfoRate').addEventListener('input', updateLFO);
+        document.getElementById('lfoDepth').addEventListener('input', updateLFO);
+
+        document.getElementById('metaLfoWaveform').addEventListener('change', updateMetaLFO);
+        document.getElementById('metaLfoRate').addEventListener('input', updateMetaLFO);
+        document.getElementById('metaLfoDepth').addEventListener('input', updateMetaLFO);
+
+        document.getElementById('distortionAmount').addEventListener('input', updateDistortion);
+        document.getElementById('distortionType').addEventListener('change', updateDistortion);
+        document.getElementById('preFilterFreq').addEventListener('input', updateDistortion);
+        document.getElementById('postFilterFreq').addEventListener('input', updateDistortion);
+        document.getElementById('lfoRate').addEventListener('input', startLFOVisualization);
+        document.getElementById('lfoDepth').addEventListener('input', startLFOVisualization);
+
+        document.getElementById('cutoff').addEventListener('input', updateFilter);
+        document.getElementById('resonance').addEventListener('input', updateFilter);
+
+        // Call this function whenever oscillator settings change
+        updateOscillatorVisualizations();
+
+        // Add event listeners to update visualizations when settings change
+        // Oscillator 1
+        document.getElementById('waveform').addEventListener('change', updateOscillatorVisualizations);
+        document.getElementById('frequency').addEventListener('input', updateOscillatorVisualizations);
+        document.getElementById('op1Gain').addEventListener('input', updateOscillatorVisualizations);
+        document.getElementById('detune1').addEventListener('input', updateOscillatorVisualizations);
+
+        // Oscillator 2
+        document.getElementById('waveform2').addEventListener('change', updateOscillatorVisualizations);
+        document.getElementById('frequency2').addEventListener('input', updateOscillatorVisualizations);
+        document.getElementById('op2Gain').addEventListener('input', updateOscillatorVisualizations);
+        document.getElementById('detune2').addEventListener('input', updateOscillatorVisualizations);
+
+        // Oscillator 3
+        document.getElementById('waveform3').addEventListener('change', updateOscillatorVisualizations);
+        document.getElementById('frequency3').addEventListener('input', updateOscillatorVisualizations);
+        document.getElementById('op3Gain').addEventListener('input', updateOscillatorVisualizations);
+        document.getElementById('detune3').addEventListener('input', updateOscillatorVisualizations);
+
+        document.getElementById('presets').addEventListener('change', function() {
+            loadPreset(this.value);
+        });
+
+        // Load default preset when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initAudio();
+            loadPreset('wobbleBass');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+
+                    // Update visualizations based on the selected tab
+                    switch (tabId) {
+                        case 'main':
+                            startLFOVisualization();
+                            break;
+                        case '3xosc':
+                            updateOscillatorVisualizations();
+                            break;
+                        case 'fm':
+                            updateFMVisualizations();
+                            break;
+                        case 'filter':
+                            break;
+                        case 'fx':
+                            // If you have any visualizations for the FX tab, update them here
+                            break;
+                    }
+                });
+            });
+            if (playing) {
+                startLFOVisualization();
+                updateOscillatorVisualizations();
+                updateFMVisualizations();
+            }
+        });
+        window.addEventListener('unload', stopLFOVisualization);
+    </script>
+</body>
+</html>
