@@ -58,12 +58,6 @@ Contributions, issues, and feature requests are welcome. Feel free to check [iss
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
-## Acknowledgments
-
-- Claude Sonnet 3.5 who basically wrote this
-
-# Web-based Synthesizer Feature Checklist
-
 ## Implemented Features
 - [x] 3 Oscillators with waveform, frequency, gain, and detune controls
 - [x] FM Synthesis (2 oscillators)
@@ -131,3 +125,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 - [ ] Tempo-synced delay
 - [ ] "Riddim" pattern generator
 - [ ] "Growl" modulation effect
+
+## Acknowledgments
+
+- Claude Sonnet 3.5 who basically wrote this
